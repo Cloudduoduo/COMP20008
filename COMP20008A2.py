@@ -9,8 +9,9 @@ titles = pd.read_csv('titles.csv', encoding='ISO-8859-1')
 
 # drop na
 credit.dropna(inplace=True)
-titles.dropna(inplace=True)
-
+columns_to_check = ['imdb_id', 'imdb_score', 'imdb_votes', 'tmdb_popularity', 'tmdb_score']
+titles.dropna(subset=columns_to_check, inplace=True)
+titles.to_csv('E:/20008/ASS2/titles.csv', index=False)
 # Delete duplicate value
 credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
