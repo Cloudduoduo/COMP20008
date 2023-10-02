@@ -1,6 +1,6 @@
+import numpy as np
 import pandas as pd
 import ast
-
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -66,6 +66,7 @@ print(titles.dtypes)
 # Filter out the data whose type is 'movie'
 movie_titles = titles[titles['type'] == 'MOVIE'].copy()
 
+
 # Creates a new column to store the category of the movie
 def categorize_runtime(runtime):
     if runtime < 40:
@@ -74,6 +75,7 @@ def categorize_runtime(runtime):
         return 'Medium-length movie'
     else:
         return 'Feature movie'
+
 
 movie_titles['category'] = movie_titles['runtime'].apply(categorize_runtime)
 
@@ -94,7 +96,6 @@ for p in ax.patches:
                 textcoords='offset points')
 
 plt.show()
-
 
 # ------------------------------------------------------------------------------------------------------------
 
@@ -123,4 +124,54 @@ for p in ax.patches:
                 xytext=(0, 9),
                 textcoords='offset points')
 
+plt.show()
+
+# ------------------------------------------------------------------------------------------------------------
+
+# merge data
+merged_data = pd.merge(credit, titles, on='id')
+
+# new csv
+merged_data.to_csv('merged_data.csv', index=False)
+
+# ------------------------------------------------------------------------------------------------------------
+
+# Group data by IMDb score and count the number of occurrences of each score
+imdb_counts = merged_data.groupby('imdb_score').size()
+
+# Create a line plot of IMDb score distribution
+plt.figure()
+imdb_counts.plot()
+
+# Add title and axis labels
+plt.title('IMDb Score Distribution')
+plt.xlabel('IMDb Score')
+plt.ylabel('Frequency')
+
+# Show the plot
+plt.show()
+
+# ------------------------------------------------------------------------------------------------------------
+
+# Check out the top 10 characters with the highest average imdb rating
+
+# Calculate the average imdb score for each character
+character_avg_score = merged_data.groupby('character')['imdb_score'].mean()
+
+# Sort and get the top 10 characters with the highest average rating
+top10_characters = character_avg_score.sort_values(ascending=False).head(10)
+
+print(top10_characters)
+
+color_list = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'brown', 'gray', 'olive', 'cyan']
+
+plt.figure(figsize=(10, 6))
+top10_characters.plot(kind='barh', color=color_list)
+
+plt.title('Top 10 Characters by Average IMDb Score')
+plt.xlabel('Average IMDb Score')
+plt.ylabel('Character')
+
+plt.gca().invert_yaxis()
+plt.tight_layout()
 plt.show()
