@@ -17,6 +17,8 @@ import pandas as pd
 import nltk
 import string
 from nltk.corpus import stopwords
+from wordcloud import WordCloud
+
 
 # read data
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
@@ -174,11 +176,42 @@ plt.show()
 
 
 # 词频图----------------------------------------------------------------------------------------------------
+
+titles['description'].fillna('', inplace=True)
+
+nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
+word_count = Counter()
 
+for desc in titles['description']:
+    # 转换为小写并去除标点符号
+    desc = desc.lower().translate(str.maketrans('', '', string.punctuation))
+    # 分词
+    words = nltk.word_tokenize(desc)
+    # 去除停用词并计数
+    word_count.update(word for word in words if word not in stop_words)
 
+# 获取最常见的词
+top_n = 20
+common_words = word_count.most_common(top_n)
+
+# 绘制条形图
+plt.figure(figsize=(10, 5))
+plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
+plt.xlabel('Count')
+plt.title(f'Top {top_n} Common Words in Movie Descriptions')
+plt.show()
+
+wordcloud = WordCloud(width=800, height=400, background_color ='white',
+                      max_words=200, colormap='viridis').generate_from_frequencies(word_count)
+
+# 绘制词云图
+plt.figure(figsize=(10, 7))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')  # 不显示坐标轴
+plt.show()
 # ------------------------------------------------------------------------------------------------------------
 
 # Movies are divided into five categories: G,NC-17,PG, and PG-13. And count the numbers.
