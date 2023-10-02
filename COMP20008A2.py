@@ -10,6 +10,13 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+import matplotlib.pyplot as plt
+from collections import Counter
+import seaborn as sns
+import pandas as pd
+import nltk
+import string
+from nltk.corpus import stopwords
 
 # read data
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
@@ -26,14 +33,11 @@ titles.to_csv('titles.csv', index=False)
 credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
 
-# change genres type
-# titles['genres'] = titles['genres'].apply(ast.literal_eval)
-
 # print(credit.info())
 # print(titles.info())
 
 
-# ------------------------------------------------------------------------------------------------------------
+# regression------------------------------------------------------------------------------------------------------------
 
 
 features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score', 'genres', 'production_countries']
@@ -70,7 +74,67 @@ predictions = model.predict(X_test)
 mse = mean_squared_error(Y_test, predictions)
 print(f'Mean Squared Error: {mse}')
 
-# ------------------------------------------------------------------------------------------------------------
+# 饼图------------------------------------------------------------------------------------------------------------
+
+# change genres type
+pieChartDF = titles
+# Assuming pieChartDF = titles, ensure the genres column is a list.
+pieChartDF['genres'] = pieChartDF['genres'].apply(ast.literal_eval)
+
+# Explode the genres column into individual rows
+p_exploded = pieChartDF['genres'].explode()
+
+# Calculate the genre counts
+genre_counts = p_exploded.value_counts()
+total = genre_counts.sum()
+
+# Define a threshold, e.g., 2%
+threshold = 0.02 * total
+
+# Create a new Series object where smaller categories are grouped as "Other"
+genre_counts_adjusted = genre_counts[genre_counts >= threshold]
+other_count = genre_counts[genre_counts < threshold].sum()
+
+if other_count > 0:
+    genre_counts_adjusted['Other'] = other_count
+
+# Define a custom color palette
+colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#99e6e6', '#ffdb4d']
+# if needed, you can add more colors to the list.
+
+# Plot the pie chart
+genre_counts_adjusted.plot.pie(
+    autopct='%1.1f%%',
+    startangle=90,
+    counterclock=False,
+    colors=colors,  # use the custom color palette
+    wedgeprops=dict(width=0.4)  # if you want to make a donut chart
+)
+
+# Improve readability
+plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+plt.ylabel('')  # Hide the y-axis label
+plt.title('Genre Distribution')
+
+# Show the plot
+plt.show()
+
+df_exploded = pieChartDF.explode('genres')
+
+df_exploded['year_group'] = (df_exploded['release_year'] // 2) * 2
+
+# 对year_group和genres进行分组并计数
+genre_counts_over_time = df_exploded.groupby(['year_group', 'genres']).size().unstack(fill_value=0)
+
+plt.figure(figsize=(10, 6))
+genre_counts_over_time.plot(kind='line', ax=plt.gca())  # 使用 kind='line' 绘制折线图
+plt.title('Genre Distribution Over Time')
+plt.xlabel('Decade')
+plt.ylabel('Number of Movies')
+plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # 将图例移到图的外部
+plt.show()
+
+# ---------------------------------------------------------------------------------------------------------------------------
 
 # The film is divided into three categories: Short film, Medium-length film and Feature film. And count the number
 
@@ -107,6 +171,13 @@ for p in ax.patches:
                 textcoords='offset points')
 
 plt.show()
+
+
+# 词频图----------------------------------------------------------------------------------------------------
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+
+
 
 # ------------------------------------------------------------------------------------------------------------
 
