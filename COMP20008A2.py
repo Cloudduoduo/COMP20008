@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import ast
-from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -12,6 +11,10 @@ from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 from collections import Counter
 import seaborn as sns
+import pandas as pd
+import nltk
+import string
+from nltk.corpus import stopwords
 
 # read data
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
@@ -121,7 +124,6 @@ df_exploded['year_group'] = (df_exploded['release_year'] // 2) * 2
 # 对year_group和genres进行分组并计数
 genre_counts_over_time = df_exploded.groupby(['year_group', 'genres']).size().unstack(fill_value=0)
 
-
 plt.figure(figsize=(10, 6))
 genre_counts_over_time.plot(kind='line', ax=plt.gca())  # 使用 kind='line' 绘制折线图
 plt.title('Genre Distribution Over Time')
@@ -130,7 +132,8 @@ plt.ylabel('Number of Movies')
 plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # 将图例移到图的外部
 plt.show()
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
+
 # The film is divided into three categories: Short film, Medium-length film and Feature film. And count the number
 
 # Filter out the data whose type is 'movie'
@@ -166,6 +169,13 @@ for p in ax.patches:
                 textcoords='offset points')
 
 plt.show()
+
+
+# 词频图----------------------------------------------------------------------------------------------------
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+
+
 
 # ------------------------------------------------------------------------------------------------------------
 
@@ -262,7 +272,6 @@ director_data = credit_df[credit_df['role'] == 'DIRECTOR']
 
 # 将筛选后的数据另存为一个新的csv文件，例如directors.csv
 director_data.to_csv('directors.csv', index=False)
-
 
 directors_df = pd.read_csv('directors.csv')
 titles_df = pd.read_csv('titles.csv')
