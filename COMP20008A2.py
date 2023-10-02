@@ -136,6 +136,8 @@ merged_data.to_csv('merged_data.csv', index=False)
 
 # ------------------------------------------------------------------------------------------------------------
 
+# Create a graph to show the distribution of IMDb scores
+
 # Group data by IMDb score and count the number of occurrences of each score
 imdb_counts = merged_data.groupby('imdb_score').size()
 
