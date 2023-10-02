@@ -8,16 +8,19 @@ print(title.info())
 
 # drop na
 credit.dropna(inplace=True)
-title.dropna(inplace=True)
+columns_to_check = ['imdb_id', 'imdb_score', 'imdb_votes', 'tmdb_popularity', 'tmdb_score']
+title.dropna(subset=columns_to_check, inplace=True)
+title.to_csv('E:/20008/ASS2/titles.csv', index=False)
 
 # Delete duplicate value
 credit.drop_duplicates(inplace=True)
 title.drop_duplicates(inplace=True)
+
 # Sort the roles in the credits file
 sorted_credits = credit.sort_values(by='role', ascending=True)
 
-merged_data = pd.merge(credit, title, on='id')
-merged_data.to_csv('merged_data.csv', index=False)
+
+
 
 
 
