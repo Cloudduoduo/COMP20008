@@ -267,6 +267,7 @@ plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
 
+# Average imdb_score for each movie category
 
 df = pd.read_csv('titles.csv')
 
