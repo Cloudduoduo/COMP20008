@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 from matplotlib import pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import OneHotEncoder
@@ -26,7 +26,7 @@ credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
 
 # change genres type
-titles['genres'] = titles['genres'].apply(ast.literal_eval)
+# titles['genres'] = titles['genres'].apply(ast.literal_eval)
 
 # print(credit.info())
 # print(titles.info())
@@ -40,7 +40,7 @@ target = 'imdb_score'
 
 X = titles[features]
 Y = titles[target]
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=666)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=666)
 
 numeric_features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score']
 numeric_transformer = SimpleImputer(strategy='median')
@@ -57,7 +57,17 @@ preprocessor = ColumnTransformer(
         ('cat', categorical_transformer, categorical_features)
     ])
 
-print(titles.dtypes)
+model = Pipeline(steps=[('preprocessor', preprocessor),
+                        ('regressor', LinearRegression())])
+
+model.fit(X_train, Y_train)
+
+# 预测
+predictions = model.predict(X_test)
+
+# 计算误差
+mse = mean_squared_error(Y_test, predictions)
+print(f'Mean Squared Error: {mse}')
 
 # ------------------------------------------------------------------------------------------------------------
 
@@ -65,6 +75,7 @@ print(titles.dtypes)
 
 # Filter out the data whose type is 'movie'
 movie_titles = titles[titles['type'] == 'MOVIE'].copy()
+
 
 # Creates a new column to store the category of the movie
 def categorize_runtime(runtime):
@@ -74,6 +85,7 @@ def categorize_runtime(runtime):
         return 'Medium-length movie'
     else:
         return 'Feature movie'
+
 
 movie_titles['category'] = movie_titles['runtime'].apply(categorize_runtime)
 
@@ -94,7 +106,6 @@ for p in ax.patches:
                 textcoords='offset points')
 
 plt.show()
-
 
 # ------------------------------------------------------------------------------------------------------------
 
