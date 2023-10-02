@@ -1,5 +1,7 @@
 import pandas as pd
 import ast
+
+from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -56,3 +58,69 @@ preprocessor = ColumnTransformer(
     ])
 
 print(titles.dtypes)
+
+# ------------------------------------------------------------------------------------------------------------
+
+# The film is divided into three categories: Short film, Medium-length film and Feature film. And count the number
+
+# Filter out the data whose type is 'movie'
+movie_titles = titles[titles['type'] == 'MOVIE'].copy()
+
+# Creates a new column to store the category of the movie
+def categorize_runtime(runtime):
+    if runtime < 40:
+        return 'Short movie'
+    elif 40 <= runtime <= 70:
+        return 'Medium-length movie'
+    else:
+        return 'Feature movie'
+
+movie_titles['category'] = movie_titles['runtime'].apply(categorize_runtime)
+
+# Count the number of movies in each category
+category_counts = movie_titles['category'].value_counts()
+
+ax = category_counts.plot(kind='bar', color=['blue', 'orange', 'green'])
+plt.title('Distribution of Movie Lengths')
+plt.xlabel('Category')
+plt.ylabel('Number of Movies')
+plt.xticks(rotation=0)
+
+for p in ax.patches:
+    ax.annotate(str(p.get_height()),
+                (p.get_x() + p.get_width() / 2., p.get_height()),
+                ha='center', va='center',
+                xytext=(0, 9),
+                textcoords='offset points')
+
+plt.show()
+
+
+# ------------------------------------------------------------------------------------------------------------
+
+# Movies are divided into five categories: G,NC-17,PG, and PG-13. And count the numbers.
+
+# Filter out the data whose type is 'movie'
+movie_titles = titles[titles['type'] == 'MOVIE'].copy()
+
+# Filters out the specified five age_certification categories
+certifications = ['G', 'NC-17', 'PG', 'PG-13', 'R']
+movie_titles = movie_titles[movie_titles['age_certification'].isin(certifications)]
+
+# Count the number of movies in each category
+certification_counts = movie_titles['age_certification'].value_counts()
+
+ax = certification_counts.plot(kind='bar', color=['blue', 'orange', 'green', 'red', 'purple'])
+plt.title('Distribution of Age Certifications')
+plt.xlabel('Certification')
+plt.ylabel('Number of Movies')
+plt.xticks(rotation=0)
+
+for p in ax.patches:
+    ax.annotate(str(p.get_height()),
+                (p.get_x() + p.get_width() / 2., p.get_height()),
+                ha='center', va='center',
+                xytext=(0, 9),
+                textcoords='offset points')
+
+plt.show()
