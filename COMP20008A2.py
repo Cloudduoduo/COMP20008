@@ -4,8 +4,8 @@ import pandas as pd
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
 titles = pd.read_csv('titles.csv', encoding='ISO-8859-1')
 
-print(credit.info())
-print(titles.info())
+# print(credit.info())
+# print(titles.info())
 
 # drop na
 credit.dropna(inplace=True)
@@ -15,75 +15,5 @@ titles.dropna(inplace=True)
 credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
 
-# Sort the roles in the credits file
-sorted_credits = credit.sort_values(by='role', ascending=True)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ------------------------------------------------------------------------------------------------------------
