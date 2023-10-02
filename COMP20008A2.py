@@ -1,9 +1,7 @@
 import numpy as np
-import pandas as pd
 import ast
-from matplotlib import pyplot as plt
 import matplotlib.cm as cm
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import OneHotEncoder
@@ -12,7 +10,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 from collections import Counter
-import seaborn as sns
 import pandas as pd
 import nltk
 import string
@@ -350,3 +347,10 @@ plt.title('Average IMDB Score by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avg_scores) + 0.5])
 plt.show()
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------
