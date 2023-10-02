@@ -10,11 +10,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 from collections import Counter
-import seaborn as sns
-import pandas as pd
 import nltk
 import string
 from nltk.corpus import stopwords
+from wordcloud import WordCloud
+
 
 # read data
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
@@ -172,11 +172,42 @@ plt.show()
 
 
 # 词频图----------------------------------------------------------------------------------------------------
+
+titles['description'].fillna('', inplace=True)
+
+nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
+word_count = Counter()
 
+for desc in titles['description']:
+    # 转换为小写并去除标点符号
+    desc = desc.lower().translate(str.maketrans('', '', string.punctuation))
+    # 分词
+    words = nltk.word_tokenize(desc)
+    # 去除停用词并计数
+    word_count.update(word for word in words if word not in stop_words)
 
+# 获取最常见的词
+top_n = 20
+common_words = word_count.most_common(top_n)
+
+# 绘制条形图
+plt.figure(figsize=(10, 5))
+plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
+plt.xlabel('Count')
+plt.title(f'Top {top_n} Common Words in Movie Descriptions')
+plt.show()
+
+wordcloud = WordCloud(width=800, height=400, background_color ='white',
+                      max_words=200, colormap='viridis').generate_from_frequencies(word_count)
+
+# 绘制词云图
+plt.figure(figsize=(10, 7))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')  # 不显示坐标轴
+plt.show()
 # ------------------------------------------------------------------------------------------------------------
 
 # Movies are divided into five categories: G,NC-17,PG, and PG-13. And count the numbers.
@@ -263,40 +294,3 @@ plt.tight_layout()
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
-
-# 从credit.csv文件中加载数据
-credit_df = pd.read_csv('E:/20008/ASS2/credits.csv')
-
-# 通过对role列进行筛选，提取出role为DIRECTOR的数据
-director_data = credit_df[credit_df['role'] == 'DIRECTOR']
-
-# 将筛选后的数据另存为一个新的csv文件，例如directors.csv
-director_data.to_csv('directors.csv', index=False)
-
-directors_df = pd.read_csv('directors.csv')
-titles_df = pd.read_csv('titles.csv')
-
-# 根据id列合并两个数据集
-merged_df = pd.merge(directors_df, titles_df, on='id')
-
-# 确保合并后的数据集中的角色是DIRECTOR（虽然directors数据集中已经是DIRECTOR，但是为了保险起见，我们再次检查）
-merged_directors_df = merged_df[merged_df['role'] == 'DIRECTOR']
-
-# 按character列分组，并计算每组的平均imdb_score
-character_avg_score = merged_directors_df.groupby('character')['imdb_score'].mean()
-
-# 根据平均imdb_score降序排列，取前10
-top10_characters = character_avg_score.sort_values(ascending=False).head(10)
-
-# 输出结果
-print(top10_characters)
-
-top10_characters.plot(kind='bar', figsize=(10, 6))
-
-# 添加标题和标签
-plt.title('Top 10 Characters by Average Imdb Score')
-plt.xlabel('Character')
-plt.ylabel('Average Imdb Score')
-
-# 显示图表
-plt.show()
