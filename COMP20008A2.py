@@ -225,25 +225,69 @@ plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
 
-# Check out the top 10 characters with the highest average imdb rating
+# Check out the top 10 actor with the highest average imdb rating
 
+actor_data = merged_data[merged_data['role'] == 'ACTOR']
 # Calculate the average imdb score for each character
-character_avg_score = merged_data.groupby('character')['imdb_score'].mean()
+actor_avg_score = actor_data.groupby('character')['imdb_score'].mean()
 
 # Sort and get the top 10 characters with the highest average rating
-top10_characters = character_avg_score.sort_values(ascending=False).head(10)
+top10_actor = actor_avg_score.sort_values(ascending=False).head(10)
 
-print(top10_characters)
+print(top10_actor)
 
 color_list = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'brown', 'gray', 'olive', 'cyan']
 
 plt.figure(figsize=(10, 6))
-top10_characters.plot(kind='barh', color=color_list)
+top10_actor.plot(kind='barh', color=color_list)
 
-plt.title('Top 10 Characters by Average IMDb Score')
+plt.title('Top 10 Characters(actor) by Average IMDb Score')
 plt.xlabel('Average IMDb Score')
 plt.ylabel('Character')
 
+for index, value in enumerate(top10_actor):
+    plt.text(value, index, f'{value:.2f}')
+
 plt.gca().invert_yaxis()
 plt.tight_layout()
+plt.show()
+
+# ------------------------------------------------------------------------------------------------------------
+
+# 从credit.csv文件中加载数据
+credit_df = pd.read_csv('E:/20008/ASS2/credits.csv')
+
+# 通过对role列进行筛选，提取出role为DIRECTOR的数据
+director_data = credit_df[credit_df['role'] == 'DIRECTOR']
+
+# 将筛选后的数据另存为一个新的csv文件，例如directors.csv
+director_data.to_csv('directors.csv', index=False)
+
+
+directors_df = pd.read_csv('directors.csv')
+titles_df = pd.read_csv('titles.csv')
+
+# 根据id列合并两个数据集
+merged_df = pd.merge(directors_df, titles_df, on='id')
+
+# 确保合并后的数据集中的角色是DIRECTOR（虽然directors数据集中已经是DIRECTOR，但是为了保险起见，我们再次检查）
+merged_directors_df = merged_df[merged_df['role'] == 'DIRECTOR']
+
+# 按character列分组，并计算每组的平均imdb_score
+character_avg_score = merged_directors_df.groupby('character')['imdb_score'].mean()
+
+# 根据平均imdb_score降序排列，取前10
+top10_characters = character_avg_score.sort_values(ascending=False).head(10)
+
+# 输出结果
+print(top10_characters)
+
+top10_characters.plot(kind='bar', figsize=(10, 6))
+
+# 添加标题和标签
+plt.title('Top 10 Characters by Average Imdb Score')
+plt.xlabel('Character')
+plt.ylabel('Average Imdb Score')
+
+# 显示图表
 plt.show()
