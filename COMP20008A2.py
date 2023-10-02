@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import ast
 from matplotlib import pyplot as plt
+import matplotlib.cm as cm
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -136,7 +137,6 @@ for p in ax.patches:
 
 plt.show()
 
-
 # ------------------------------------------------------------------------------------------------------------
 
 # merge data
@@ -193,42 +193,55 @@ plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
 
+
 # ------------------------------------------------------------------------------------------------------------
 
-# 从credit.csv文件中加载数据
-credit_df = pd.read_csv('E:/20008/ASS2/credits.csv')
 
-# 通过对role列进行筛选，提取出role为DIRECTOR的数据
-director_data = credit_df[credit_df['role'] == 'DIRECTOR']
+df = pd.read_csv('titles.csv')
 
-# 将筛选后的数据另存为一个新的csv文件，例如directors.csv
-director_data.to_csv('directors.csv', index=False)
+movie_df = df[df['type'] == 'MOVIE']
+
+genre_score_sum_dict = {}
+genre_count_dict = {}
+
+for index, row in movie_df.iterrows():
+    genres = eval(row['genres'])
+    imdb_score = row['imdb_score']
+    for genre in genres:
+
+        if genre in genre_score_sum_dict:
+            genre_score_sum_dict[genre] += imdb_score
+        else:
+            genre_score_sum_dict[genre] = imdb_score
+
+        if genre in genre_count_dict:
+            genre_count_dict[genre] += 1
+        else:
+            genre_count_dict[genre] = 1
+
+# Average the ratings for each type
+genre_avg_score_dict = {genre: genre_score_sum_dict[genre] / genre_count_dict[genre] for genre in genre_score_sum_dict}
+
+for genre, avg_score in genre_avg_score_dict.items():
+    print(f"{genre}: {avg_score:.2f}")
 
 
-directors_df = pd.read_csv('directors.csv')
-titles_df = pd.read_csv('titles.csv')
+genres = list(genre_avg_score_dict.keys())
+avg_scores = list(genre_avg_score_dict.values())
 
-# 根据id列合并两个数据集
-merged_df = pd.merge(directors_df, titles_df, on='id')
 
-# 确保合并后的数据集中的角色是DIRECTOR（虽然directors数据集中已经是DIRECTOR，但是为了保险起见，我们再次检查）
-merged_directors_df = merged_df[merged_df['role'] == 'DIRECTOR']
+plt.figure(figsize=(10, 6))
+colors = cm.rainbow(np.linspace(0, 1, len(genres)))
+bars = plt.barh(genres, avg_scores, color=colors)
 
-# 按character列分组，并计算每组的平均imdb_score
-character_avg_score = merged_directors_df.groupby('character')['imdb_score'].mean()
 
-# 根据平均imdb_score降序排列，取前10
-top10_characters = character_avg_score.sort_values(ascending=False).head(10)
+for bar, score in zip(bars, avg_scores):
+    plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height()/2, f'{score:.2f}',
+             va='center', ha='right', color='black', fontsize=10)
 
-# 输出结果
-print(top10_characters)
-
-top10_characters.plot(kind='bar', figsize=(10, 6))
-
-# 添加标题和标签
-plt.title('Top 10 Characters by Average Imdb Score')
-plt.xlabel('Character')
-plt.ylabel('Average Imdb Score')
-
-# 显示图表
+plt.xlabel('Average IMDB Score')
+plt.ylabel('Genre')
+plt.title('Average IMDB Score by Genre')
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.xlim([0, max(avg_scores) + 0.5])
 plt.show()
