@@ -16,122 +16,186 @@ import string
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
 
-
-# read data
+# Load the datasets
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
 titles = pd.read_csv('titles.csv', encoding='ISO-8859-1')
 
-# drop na and variable seasons
+# Remove rows with missing values from the 'credit' dataframe
 credit.dropna(inplace=True)
-# titles.drop(columns=['seasons'], inplace=True)
+
+# Remove rows with missing values in specified columns from the 'titles' dataframe
 columns_to_check = ['imdb_id', 'imdb_score', 'imdb_votes', 'tmdb_popularity', 'tmdb_score']
 titles.dropna(subset=columns_to_check, inplace=True)
+
+# Save the cleaned 'titles' dataframe back to a CSV file
 titles.to_csv('titles.csv', index=False)
 
-# Delete duplicate value
+# Remove duplicate rows from both dataframes
 credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
 
+# Uncomment below lines to print the information of each dataframe if needed
 # print(credit.info())
 # print(titles.info())
-
 
 # regression------------------------------------------------------------------------------------------------------------
 
 
+# Define the features and the target variable for our model
 features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score', 'genres', 'production_countries']
 target = 'imdb_score'
 
+# Split the dataset into features (X) and target (Y)
 X = titles[features]
 Y = titles[target]
+
+# Split the dataset into training and testing sets
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=666)
 
+# Define numeric features and the corresponding transformer
 numeric_features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score']
-numeric_transformer = SimpleImputer(strategy='median')
+numeric_transformer = SimpleImputer(strategy='median')  # Impute missing values using the median
 
+# Define categorical features and the corresponding transformer
 categorical_features = ['genres', 'production_countries']
 categorical_transformer = Pipeline(steps=[
-    ('impute', SimpleImputer(strategy='constant', fill_value='missing')),
-    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ('impute', SimpleImputer(strategy='constant', fill_value='missing')),  # Impute missing values with 'missing' label
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))  # Apply one-hot encoding to categorical features
 ])
 
+# Create a column transformer that applies the above transformations to the respective columns
 preprocessor = ColumnTransformer(
     transformers=[
         ('num', numeric_transformer, numeric_features),
         ('cat', categorical_transformer, categorical_features)
     ])
 
+# Define the modeling pipeline: pre-processing followed by a linear regression model
 model = Pipeline(steps=[('preprocessor', preprocessor),
                         ('regressor', LinearRegression())])
 
+# Train the model on the training data
 model.fit(X_train, Y_train)
 
-# 预测
+# Predict the target values for the test set
 predictions = model.predict(X_test)
 
-# 计算误差
+# Calculate and print the mean squared error of the predictions
 mse = mean_squared_error(Y_test, predictions)
 print(f'Mean Squared Error: {mse}')
 
-# 饼图------------------------------------------------------------------------------------------------------------
+# By examining MSE, this model is not ideal, which may be because people's taste for movies
+# has changed with the change of times
 
-# change genres type
+
+# pie chart and line chart about genre and years------------------------------------------------------------------------
+
+# Convert the genres column in titles dataframe to a list type
 pieChartDF = titles
-# Assuming pieChartDF = titles, ensure the genres column is a list.
-pieChartDF['genres'] = pieChartDF['genres'].apply(ast.literal_eval)
+pieChartDF['genres'] = pieChartDF['genres'].apply(
+    ast.literal_eval)  # Convert string representations of lists to actual lists
 
-# Explode the genres column into individual rows
+# Split each list in the genres column into separate rows
 p_exploded = pieChartDF['genres'].explode()
 
-# Calculate the genre counts
+# Calculate the frequency of each genre
 genre_counts = p_exploded.value_counts()
 total = genre_counts.sum()
 
-# Define a threshold, e.g., 2%
+# Set a threshold for minimum count required for a genre to be displayed separately in the pie chart
 threshold = 0.02 * total
 
-# Create a new Series object where smaller categories are grouped as "Other"
+# Group genres with counts below the threshold into an "Other" category
 genre_counts_adjusted = genre_counts[genre_counts >= threshold]
 other_count = genre_counts[genre_counts < threshold].sum()
 
 if other_count > 0:
     genre_counts_adjusted['Other'] = other_count
 
-# Define a custom color palette
+# Define custom colors for the pie chart
 colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#99e6e6', '#ffdb4d']
-# if needed, you can add more colors to the list.
 
-# Plot the pie chart
+# Create and display the pie chart with adjusted genre counts
 genre_counts_adjusted.plot.pie(
-    autopct='%1.1f%%',
-    startangle=90,
-    counterclock=False,
-    colors=colors,  # use the custom color palette
-    wedgeprops=dict(width=0.4)  # if you want to make a donut chart
+    autopct='%1.1f%%',  # Display percentages on the chart
+    startangle=90,  # Starting angle for the first slice
+    counterclock=False,  # Display slices in a counter-clockwise fashion
+    colors=colors,  # Use the custom color palette
+    wedgeprops=dict(width=0.4)  # Create a donut chart by defining a wedge width
 )
 
-# Improve readability
-plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-plt.ylabel('')  # Hide the y-axis label
-plt.title('Genre Distribution')
+plt.axis('equal')  # Ensure the pie chart is circular
+plt.ylabel('')  # Remove the y-axis label
+plt.title('Genre Distribution')  # Set the title for the pie chart
 
-# Show the plot
+# Display the pie chart
 plt.show()
 
+# Split the genres in the pieChartDF into separate rows for further analysis
 df_exploded = pieChartDF.explode('genres')
 
+# Group the release years in 2-year bins
 df_exploded['year_group'] = (df_exploded['release_year'] // 2) * 2
 
-# 对year_group和genres进行分组并计数
+# Calculate the frequency of each genre over the binned years
 genre_counts_over_time = df_exploded.groupby(['year_group', 'genres']).size().unstack(fill_value=0)
 
+# Plot the genre distribution over time
 plt.figure(figsize=(10, 6))
-genre_counts_over_time.plot(kind='line', ax=plt.gca())  # 使用 kind='line' 绘制折线图
+genre_counts_over_time.plot(kind='line', ax=plt.gca())
 plt.title('Genre Distribution Over Time')
-plt.xlabel('Decade')
-plt.ylabel('Number of Movies')
-plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # 将图例移到图的外部
+plt.xlabel('Decade')  # Set x-axis label
+plt.ylabel('Number of Movies')  # Set y-axis label
+plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # Place the legend outside the plot
+
+# Display the line chart
 plt.show()
+
+# Word frequency plot and word cloud plot-------------------------------------------------------------------------------
+
+# Fill any missing descriptions with empty strings
+titles['description'].fillna('', inplace=True)
+
+# Download necessary NLTK data
+nltk.download('punkt')
+nltk.download('stopwords')
+
+# Set up the list of English stop words
+stop_words = set(stopwords.words('english'))
+
+# Initialize a counter for word frequencies
+word_count = Counter()
+
+# Loop through each movie description
+for desc in titles['description']:
+    # Convert to lowercase and remove punctuation
+    desc = desc.lower().translate(str.maketrans('', '', string.punctuation))
+    # Tokenize the description into words
+    words = nltk.word_tokenize(desc)
+    # Update the word count, excluding stop words
+    word_count.update(word for word in words if word not in stop_words)
+
+# Get the most common words
+top_n = 20
+common_words = word_count.most_common(top_n)
+
+# Plot the most common words as a horizontal bar chart
+plt.figure(figsize=(10, 5))
+plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
+plt.xlabel('Count')
+plt.title(f'Top {top_n} Common Words in Movie Descriptions')
+plt.show()
+
+# Generate a word cloud based on the word frequencies
+wordcloud = WordCloud(width=800, height=400, background_color='white',
+                      max_words=200, colormap='viridis').generate_from_frequencies(word_count)
+
+# Display the word cloud
+plt.figure(figsize=(10, 7))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')  # Hide axes for better visual
+plt.show()
+
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
@@ -171,44 +235,6 @@ for p in ax.patches:
 
 plt.show()
 
-
-# 词频图----------------------------------------------------------------------------------------------------
-
-titles['description'].fillna('', inplace=True)
-
-nltk.download('punkt')
-nltk.download('stopwords')
-stop_words = set(stopwords.words('english'))
-
-word_count = Counter()
-
-for desc in titles['description']:
-    # 转换为小写并去除标点符号
-    desc = desc.lower().translate(str.maketrans('', '', string.punctuation))
-    # 分词
-    words = nltk.word_tokenize(desc)
-    # 去除停用词并计数
-    word_count.update(word for word in words if word not in stop_words)
-
-# 获取最常见的词
-top_n = 20
-common_words = word_count.most_common(top_n)
-
-# 绘制条形图
-plt.figure(figsize=(10, 5))
-plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
-plt.xlabel('Count')
-plt.title(f'Top {top_n} Common Words in Movie Descriptions')
-plt.show()
-
-wordcloud = WordCloud(width=800, height=400, background_color ='white',
-                      max_words=200, colormap='viridis').generate_from_frequencies(word_count)
-
-# 绘制词云图
-plt.figure(figsize=(10, 7))
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis('off')  # 不显示坐标轴
-plt.show()
 # ------------------------------------------------------------------------------------------------------------
 
 # Movies are divided into five categories: G,NC-17,PG, and PG-13. And count the numbers.
@@ -294,7 +320,6 @@ plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
 
-
 # ------------------------------------------------------------------------------------------------------------
 
 # Average imdb_score for each movie category
@@ -327,18 +352,15 @@ genre_avg_score_dict = {genre: genre_score_sum_dict[genre] / genre_count_dict[ge
 for genre, avg_score in genre_avg_score_dict.items():
     print(f"{genre}: {avg_score:.2f}")
 
-
 genres = list(genre_avg_score_dict.keys())
 avg_scores = list(genre_avg_score_dict.values())
-
 
 plt.figure(figsize=(10, 6))
 colors = cm.rainbow(np.linspace(0, 1, len(genres)))
 bars = plt.barh(genres, avg_scores, color=colors)
 
-
 for bar, score in zip(bars, avg_scores):
-    plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height()/2, f'{score:.2f}',
+    plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{score:.2f}',
              va='center', ha='right', color='black', fontsize=10)
 
 plt.xlabel('Average IMDB Score')
@@ -347,10 +369,5 @@ plt.title('Average IMDB Score by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avg_scores) + 0.5])
 plt.show()
-
-
-
-
-
 
 # ------------------------------------------------------------------------------------------------------------
