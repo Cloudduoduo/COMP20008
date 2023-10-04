@@ -196,6 +196,54 @@ plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis('off')  # Hide axes for better visual
 plt.show()
 
+# Average imdb_votes for each movie category----------------------------------------------------------------------------
+
+
+df = pd.read_csv('titles.csv')
+
+movie_df = df[titles['type'] == 'MOVIE']
+
+genre_score_sum_dict = {}
+genre_count_dict = {}
+
+for index, row in movie_df.iterrows():
+    genres = eval(row['genres'])
+    imdb_votes = row['imdb_votes']
+    for genre in genres:
+
+        if genre in genre_score_sum_dict:
+            genre_score_sum_dict[genre] += imdb_votes
+        else:
+            genre_score_sum_dict[genre] = imdb_votes
+
+        if genre in genre_count_dict:
+            genre_count_dict[genre] += 1
+        else:
+            genre_count_dict[genre] = 1
+
+# Average the ratings for each type
+genre_avg_score_dict = {genre: genre_score_sum_dict[genre] / genre_count_dict[genre] for genre in genre_score_sum_dict}
+
+for genre, avg_score in genre_avg_score_dict.items():
+    print(f"{genre}: {avg_score:.2f}")
+
+genres = list(genre_avg_score_dict.keys())
+avg_votes = list(genre_avg_score_dict.values())
+
+plt.figure(figsize=(10, 6))
+colors = cm.rainbow(np.linspace(0, 1, len(genres)))
+bars = plt.barh(genres, avg_votes, color=colors)
+
+for bar, score in zip(bars, avg_votes):
+    plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{score:.2f}',
+             va='center', ha='right', color='black', fontsize=10)
+
+plt.xlabel('Average IMDB Votes')
+plt.ylabel('Genre')
+plt.title('Average IMDB Votes by Genre')
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.xlim([0, max(avg_votes) + 0.5])
+plt.show()
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
@@ -371,3 +419,4 @@ plt.xlim([0, max(avg_scores) + 0.5])
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
+
