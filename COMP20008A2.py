@@ -153,11 +153,11 @@ genre_counts_over_time = df_exploded.groupby(['year_group', 'genres']).size().un
 # Plot the genre distribution over time
 plt.figure(figsize=(10, 6))
 genre_counts_over_time.plot(kind='line', ax=plt.gca())
-plt.title('Genre Distribution Over Time')
-plt.xlabel('Decade')
+plt.title('Genre Distribution over Release Years')
+plt.xlabel('Release Year')
 plt.ylabel('Number of Movies')
 plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
-plt.savefig('PNG/Genre Distribution Over Time.png', bbox_inches='tight')
+plt.savefig('PNG/Genre Distribution over Release Years.png', bbox_inches='tight')
 
 plt.show()
 
