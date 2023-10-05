@@ -374,8 +374,8 @@ plt.show()
 titles_of_movie = titles[titles['type'] == 'MOVIE'].copy()
 
 # Filters out the specified five age_certification categories
-classification = ['G', 'NC-17', 'PG', 'PG-13', 'R']
-titles_of_movie = titles_of_movie[titles_of_movie['age_certification'].isin(classification)]
+certification = ['G', 'NC-17', 'PG', 'PG-13', 'R']
+titles_of_movie = titles_of_movie[titles_of_movie['age_certification'].isin(certification)]
 
 # Count the number of movies in each category
 counts_of_classification = titles_of_movie['age_certification'].value_counts()
