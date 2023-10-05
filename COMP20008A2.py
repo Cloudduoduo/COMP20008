@@ -47,34 +47,33 @@ titles.drop_duplicates(inplace=True)
 
 # Define the features and the target variable for our model
 features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score', 'genres', 'production_countries']
-target = 'imdb_score'
 
 # Split the dataset into features (X) and target (Y)
 X = titles[features]
-Y = titles[target]
+Y = titles['imdb_score']
 
 # Split the dataset into training and testing sets
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=666)
 
-# Define numeric features and the corresponding transformer
-numeric_features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score']
-numeric_transformer = SimpleImputer(strategy='median')  # Impute missing values using the median
+# Define numeric features
+num_features = ['release_year', 'runtime', 'tmdb_popularity', 'tmdb_score']
+num_transformer = SimpleImputer(strategy='median')
 
-# Define categorical features and the corresponding transformer
-categorical_features = ['genres', 'production_countries']
-categorical_transformer = Pipeline(steps=[
+# Define categorical features
+cate_features = ['genres', 'production_countries']
+cate_transformer = Pipeline(steps=[
     ('impute', SimpleImputer(strategy='constant', fill_value='missing')),
     ('onehot', OneHotEncoder(handle_unknown='ignore'))
 ])
 
-# Create a column transformer that applies the above transformations to the respective columns
+# transformer the above transformations to the respective columns
 preprocessor = ColumnTransformer(
     transformers=[
-        ('num', numeric_transformer, numeric_features),
-        ('cat', categorical_transformer, categorical_features)
+        ('num', num_transformer, num_features),
+        ('cat', cate_transformer, cate_features)
     ])
 
-# Define the modeling pipeline: pre-processing followed by a linear regression model
+# Define the modeling pipeline
 model = Pipeline(steps=[('preprocessor', preprocessor),
                         ('regressor', LinearRegression())])
 
@@ -84,25 +83,19 @@ model.fit(X_train, Y_train)
 # Predict the target values for the test set
 predictions = model.predict(X_test)
 
-# Calculate and print the mean squared error of the predictions
+# Calculate the mean squared error of the predictions
 mse1 = mean_squared_error(Y_test, predictions)
 print(f'Mean Squared Error: {mse1}')
 
 # By examining MSE, this model is not ideal, which may be because people's taste for movies
 # has changed with the change of times
 
+# cross-validation
+scores = cross_val_score(model, X, Y, cv=10, scoring='neg_mean_squared_error')
 
-# preprocessor and model
-pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                           ('regressor', LinearRegression())])
-
-# Performing cross-validation
-scores = cross_val_score(pipeline, X, Y, cv=10, scoring='neg_mean_squared_error')
-
-# Cross-validation returns negative MSE values because the scoring function
 mse_scores = -scores
 mse2 = np.mean(mse_scores)
-print(f'Mean Squared Error: {mse2}')
+print(f'Mean Squared Error(CV): {mse2}')
 
 
 # pie chart and line chart about genre and years------------------------------------------------------------------------
