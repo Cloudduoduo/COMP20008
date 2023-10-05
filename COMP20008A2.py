@@ -202,49 +202,49 @@ plt.show()
 
 
 # Filter the titles dataframe to only get entries where the type is 'MOVIE'
-movie_df = titles[titles['type'] == 'MOVIE']
+df_of_movie = titles[titles['type'] == 'MOVIE']
 
 # Create dictionaries to store the sum of votes and number of occurrences for each genre
-genre_votes_sum_dict = {}
-genre_count_dict = {}
+dictionary_genre_sumvotes = {}
+dictionary_genrecount = {}
 
 # Iterate through each row in the filtered movies dataframe
-for index, row in movie_df.iterrows():
+for index, row in df_of_movie.iterrows():
     genres = row['genres']  # Extract the genres for the current movie
     imdb_votes = row['imdb_votes']  # Extract the IMDB votes for the current movie
 
     # Iterate through each genre of the current movie
     for genre in genres:
         # Update the votes sum for the current genre
-        if genre in genre_votes_sum_dict:
-            genre_votes_sum_dict[genre] += imdb_votes
+        if genre in dictionary_genre_sumvotes:
+            dictionary_genre_sumvotes[genre] += imdb_votes
         else:
-            genre_votes_sum_dict[genre] = imdb_votes
+            dictionary_genre_sumvotes[genre] = imdb_votes
 
         # Update the count of the current genre
-        if genre in genre_count_dict:
-            genre_count_dict[genre] += 1
+        if genre in dictionary_genrecount:
+            dictionary_genrecount[genre] += 1
         else:
-            genre_count_dict[genre] = 1
+            dictionary_genrecount[genre] = 1
 
 # Calculate the average votes for each genre
-genre_avg_votes_dict = {genre: genre_votes_sum_dict[genre] / genre_count_dict[genre] for genre in genre_votes_sum_dict}
+dictionary_genre_avgvotes = {genre: dictionary_genre_sumvotes[genre] / dictionary_genrecount[genre] for genre in dictionary_genre_sumvotes}
 
 # Print out the average votes for each genre
-for genre, avg_votes in genre_avg_votes_dict.items():
-    print(f"{genre}: {avg_votes:.2f}")
+for genre, avgvotes in dictionary_genre_avgvotes.items():
+    print(f"{genre}: {avgvotes:.2f}")
 
 # Get the list of genres and their corresponding average votes for plotting
-genres = list(genre_avg_votes_dict.keys())
-avg_votes = list(genre_avg_votes_dict.values())
+genres = list(dictionary_genre_avgvotes.keys())
+avgvotes = list(dictionary_genre_avgvotes.values())
 
 # Plotting
 plt.figure(figsize=(10, 6))
 colors = cm.rainbow(np.linspace(0, 1, len(genres)))
-bars = plt.barh(genres, avg_votes, color=colors)
+bars = plt.barh(genres, avgvotes, color=colors)
 
 # Annotate each bar with the average votes value
-for bar, votes in zip(bars, avg_votes):
+for bar, votes in zip(bars, avgvotes):
     plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{votes:.0f}',
              va='center', ha='right', color='black', fontsize=10)
 
@@ -253,7 +253,7 @@ plt.xlabel('Average IMDB Votes')
 plt.ylabel('Genre')
 plt.title('Average IMDB Votes by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
-plt.xlim([0, max(avg_votes) + 0.5])
+plt.xlim([0, max(avgvotes) + 0.5])
 plt.savefig('PNG/Average IMDB Votes by Genre', bbox_inches='tight')
 plt.show()  # Display the plot
 
@@ -266,13 +266,13 @@ df2 = pd.read_csv("credits.csv", encoding='ISO-8859-1')
 df2 = df2[df2["role"] == "DIRECTOR"]
 
 # Merge the 'titles' and 'df2' datasets on the 'id' column
-director_data = pd.merge(titles, df2, on='id')
+data_director = pd.merge(titles, df2, on='id')
 
 # Group the merged data by director's name and calculate the mean 'imdb_score' for each director
-director_avg_score = director_data.groupby('name')['imdb_score'].mean()
+director_of_avgscore = data_director.groupby('name')['imdb_score'].mean()
 
 # Sort the directors by their average 'imdb_score' in descending order and get the top 10
-top10_director = director_avg_score.sort_values(ascending=False).head(10)
+top10director = director_of_avgscore.sort_values(ascending=False).head(10)
 
 # Define a list of colors for the bars in the plot
 colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#99e6e6', '#ffdb4d', '#d9b3ff', '#ff6666']
@@ -281,7 +281,7 @@ colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#99
 plt.figure(figsize=(10, 6))
 
 # Plot the average IMDb scores for the top 10 directors as a horizontal bar chart
-bars = top10_director.plot(kind='barh', color=colors)
+bars = top10director.plot(kind='barh', color=colors)
 
 # Set the title and axis labels for the plot
 plt.title('Top 10 Directors by Average TMDB Score')
@@ -289,7 +289,7 @@ plt.xlabel('Average IMDB Score')
 plt.ylabel('Director')
 
 # Annotate each bar in the plot with the exact IMDb score
-for index, value in enumerate(top10_director):
+for index, value in enumerate(top10director):
     plt.text(value, index, f'{value:.2f}')
 
 # Invert the order of the y-axis for better visualization
@@ -306,11 +306,11 @@ plt.show()
 # The film is divided into three categories: Short film, Medium-length film and Feature film. And count the number
 
 # Filter out the data whose type is 'movie'
-movie_titles = titles[titles['type'] == 'MOVIE'].copy()
+titles_of_movie = titles[titles['type'] == 'MOVIE'].copy()
 
 
 # Creates a new column to store the category of the movie
-def categorize_runtime(runtime):
+def classification_runtime(runtime):
     if runtime < 40:
         return 'Short movie'
     elif 40 <= runtime <= 70:
@@ -319,10 +319,10 @@ def categorize_runtime(runtime):
         return 'Feature movie'
 
 
-movie_titles['category'] = movie_titles['runtime'].apply(categorize_runtime)
+titles_of_movie['category'] = titles_of_movie['runtime'].apply(classification_runtime)
 
 # Count the number of movies in each category
-category_counts = movie_titles['category'].value_counts()
+category_counts = titles_of_movie['category'].value_counts()
 
 ax = category_counts.plot(kind='bar', color=['blue', 'orange', 'green'])
 plt.title('Distribution of Movie Lengths')
@@ -344,16 +344,16 @@ plt.show()
 # Movies are divided into five categories: G,NC-17,PG, and PG-13. And count the numbers.
 
 # Filter out the data whose type is 'movie'
-movie_titles = titles[titles['type'] == 'MOVIE'].copy()
+titles_of_movie = titles[titles['type'] == 'MOVIE'].copy()
 
 # Filters out the specified five age_certification categories
-certifications = ['G', 'NC-17', 'PG', 'PG-13', 'R']
-movie_titles = movie_titles[movie_titles['age_certification'].isin(certifications)]
+classification = ['G', 'NC-17', 'PG', 'PG-13', 'R']
+titles_of_movie = titles_of_movie[titles_of_movie['age_certification'].isin(classification)]
 
 # Count the number of movies in each category
-certification_counts = movie_titles['age_certification'].value_counts()
+counts_of_classification = titles_of_movie['age_certification'].value_counts()
 
-ax = certification_counts.plot(kind='bar', color=['blue', 'orange', 'green', 'red', 'purple'])
+ax = counts_of_classification.plot(kind='bar', color=['blue', 'orange', 'green', 'red', 'purple'])
 plt.title('Distribution of Age Certifications')
 plt.xlabel('Certification')
 plt.ylabel('Number of Movies')
@@ -381,11 +381,11 @@ merged_data.to_csv('merged_data.csv', index=False)
 # Create a graph to show the distribution of IMDb scores
 
 # Group data by IMDb score and count the number of occurrences of each score
-imdb_counts = merged_data.groupby('imdb_score').size()
+counts_of_imdb = merged_data.groupby('imdb_score').size()
 
 # Create a line plot of IMDb score distribution
 plt.figure()
-imdb_counts.plot()
+counts_of_imdb.plot()
 
 # Add title and axis labels
 plt.title('IMDb Score Distribution')
@@ -400,25 +400,25 @@ plt.show()
 
 # Check out the top 10 actor with the highest average imdb rating
 
-actor_data = merged_data[merged_data['role'] == 'ACTOR']
+data_of_actor = merged_data[merged_data['role'] == 'ACTOR']
 # Calculate the average imdb score for each character
-actor_avg_score = actor_data.groupby('name')['imdb_score'].mean()
+actor_avgscore = data_of_actor.groupby('name')['imdb_score'].mean()
 
 # Sort and get the top 10 characters with the highest average rating
-top10_actor = actor_avg_score.sort_values(ascending=False).head(10)
+top10actor = actor_avgscore.sort_values(ascending=False).head(10)
 
-print(top10_actor)
+print(top10actor)
 
 color_list = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'brown', 'gray', 'olive', 'cyan']
 
 plt.figure(figsize=(10, 6))
-top10_actor.plot(kind='barh', color=color_list)
+top10actor.plot(kind='barh', color=color_list)
 
 plt.title('Top 10 actor by Average IMDb Score')
 plt.xlabel('Average IMDb Score')
 plt.ylabel('Actor')
 
-for index, value in enumerate(top10_actor):
+for index, value in enumerate(top10actor):
     plt.text(value, index, f'{value:.2f}')
 
 plt.gca().invert_yaxis()
@@ -432,40 +432,40 @@ plt.show()
 
 df = pd.read_csv('titles.csv')
 
-movie_df = df[df['type'] == 'MOVIE']
+df_of_movie = df[df['type'] == 'MOVIE']
 
-genre_score_sum_dict = {}
-genre_count_dict = {}
+dictionarygenrescore_sum = {}
+dictionarygenrecount = {}
 
-for index, row in movie_df.iterrows():
+for index, row in df_of_movie.iterrows():
     genres = eval(row['genres'])
     imdb_score = row['imdb_score']
     for genre in genres:
 
-        if genre in genre_score_sum_dict:
-            genre_score_sum_dict[genre] += imdb_score
+        if genre in dictionarygenrescore_sum:
+            dictionarygenrescore_sum[genre] += imdb_score
         else:
-            genre_score_sum_dict[genre] = imdb_score
+            dictionarygenrescore_sum[genre] = imdb_score
 
-        if genre in genre_count_dict:
-            genre_count_dict[genre] += 1
+        if genre in dictionarygenrecount:
+            dictionarygenrecount[genre] += 1
         else:
-            genre_count_dict[genre] = 1
+            dictionarygenrecount[genre] = 1
 
 # Average the ratings for each type
-genre_avg_score_dict = {genre: genre_score_sum_dict[genre] / genre_count_dict[genre] for genre in genre_score_sum_dict}
+dictionary_genre_avgscore = {genre: dictionarygenrescore_sum[genre] / dictionarygenrecount[genre] for genre in dictionarygenrescore_sum}
 
-for genre, avg_score in genre_avg_score_dict.items():
+for genre, avg_score in dictionary_genre_avgscore.items():
     print(f"{genre}: {avg_score:.2f}")
 
-genres = list(genre_avg_score_dict.keys())
-avg_scores = list(genre_avg_score_dict.values())
+genres = list(dictionary_genre_avgscore.keys())
+avgscores = list(dictionary_genre_avgscore.values())
 
 plt.figure(figsize=(10, 6))
 colors = cm.rainbow(np.linspace(0, 1, len(genres)))
-bars = plt.barh(genres, avg_scores, color=colors)
+bars = plt.barh(genres, avgscores, color=colors)
 
-for bar, score in zip(bars, avg_scores):
+for bar, score in zip(bars, avgscores):
     plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{score:.2f}',
              va='center', ha='right', color='black', fontsize=10)
 
@@ -473,7 +473,7 @@ plt.xlabel('Average IMDB Score')
 plt.ylabel('Genre')
 plt.title('Average IMDB Score by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
-plt.xlim([0, max(avg_scores) + 0.5])
+plt.xlim([0, max(avgscores) + 0.5])
 plt.savefig('PNG/Average IMDB Score by Genre', bbox_inches='tight')
 plt.show()
 
