@@ -327,7 +327,6 @@ plt.show()
 # Filter out the data whose type is 'movie'
 titles_of_movie = titles[titles['type'] == 'MOVIE'].copy()
 
-
 # Creates a new column to store the category of the movie
 def classification_runtime(runtime):
     if runtime < 40:
@@ -374,7 +373,7 @@ counts_of_classification = titles_of_movie['age_certification'].value_counts()
 
 ax = counts_of_classification.plot(kind='bar', color=['blue', 'orange', 'green', 'red', 'purple'])
 plt.title('Distribution of Age Certifications')
-plt.xlabel('Certification')
+plt.xlabel('Age Certification')
 plt.ylabel('Number of Movies')
 plt.xticks(rotation=0)
 
@@ -407,12 +406,12 @@ plt.figure()
 counts_of_imdb.plot()
 
 # Add title and axis labels
-plt.title('IMDb Score Distribution')
+plt.title('Distribution of IMDb Scores')
 plt.xlabel('IMDb Score')
 plt.ylabel('Frequency')
 
 # Show the plot
-plt.savefig('PNG/IMDb Score Distribution', bbox_inches='tight')
+plt.savefig('PNG/Distribution of IMDb Scores', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -433,7 +432,7 @@ color_list = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'brown', 'gray
 plt.figure(figsize=(10, 6))
 top10actor.plot(kind='barh', color=color_list)
 
-plt.title('Top 10 actor by Average IMDb Score')
+plt.title('Top 10 Actors according to Average IMDb Scores')
 plt.xlabel('Average IMDb Score')
 plt.ylabel('Actor')
 
@@ -442,7 +441,7 @@ for index, value in enumerate(top10actor):
 
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('PNG/Top 10 Actor by Average IMDb Score', bbox_inches='tight')
+plt.savefig('PNG/Top 10 Actors according to Average IMDb Scores', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -488,12 +487,12 @@ for bar, score in zip(bars, avgscores):
     plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{score:.2f}',
              va='center', ha='right', color='black', fontsize=10)
 
-plt.xlabel('Average IMDB Score')
+plt.xlabel('Average IMDb Score')
 plt.ylabel('Genre')
-plt.title('Average IMDB Score by Genre')
+plt.title('Average IMDb Score by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avgscores) + 0.5])
-plt.savefig('PNG/Average IMDB Score by Genre', bbox_inches='tight')
+plt.savefig('PNG/Average IMDb Score by Genre', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
