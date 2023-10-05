@@ -195,6 +195,7 @@ wordcloud = WordCloud(width=800, height=400, background_color='white',
 plt.figure(figsize=(10, 7))
 plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis('off')  # Hide axes for better visual
+plt.savefig('word cloud.png', bbox_inches='tight')
 plt.show()
 
 # Average imdb_votes for each movie category----------------------------------------------------------------------------
@@ -253,6 +254,7 @@ plt.ylabel('Genre')
 plt.title('Average IMDB Votes by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avg_votes) + 0.5])
+plt.savefig('Average IMDB Votes by Genre', bbox_inches='tight')
 plt.show()  # Display the plot
 
 # top 10 director-------------------------------------------------------------------------------------------------------
@@ -295,7 +297,7 @@ plt.gca().invert_yaxis()
 
 # Adjust the layout for the plot
 plt.tight_layout()
-
+plt.savefig('Top 10 Directors by Average TMDB Score', bbox_inches='tight')
 # Display the plot
 plt.show()
 
@@ -334,7 +336,7 @@ for p in ax.patches:
                 ha='center', va='center',
                 xytext=(0, 9),
                 textcoords='offset points')
-
+plt.savefig('Distribution of Movie Lengths', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -363,7 +365,7 @@ for p in ax.patches:
                 ha='center', va='center',
                 xytext=(0, 9),
                 textcoords='offset points')
-
+plt.savefig('Distribution of Age Certifications', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -391,6 +393,7 @@ plt.xlabel('IMDb Score')
 plt.ylabel('Frequency')
 
 # Show the plot
+plt.savefig('IMDb Score Distribution', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -420,6 +423,7 @@ for index, value in enumerate(top10_actor):
 
 plt.gca().invert_yaxis()
 plt.tight_layout()
+plt.savefig('Top 10 actor by Average IMDb Score', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
@@ -470,6 +474,7 @@ plt.ylabel('Genre')
 plt.title('Average IMDB Score by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avg_scores) + 0.5])
+plt.savefig('Average IMDB Score by Genre', bbox_inches='tight')
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------
