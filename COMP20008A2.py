@@ -268,12 +268,12 @@ for bar, votes in zip(bars, avgvotes):
              va='center', ha='right', color='black', fontsize=10)
 
 # Set labels, title, and grid for the plot
-plt.xlabel('Average IMDB Votes')
+plt.xlabel('Average IMDb Votes')
 plt.ylabel('Genre')
-plt.title('Average IMDB Votes by Genre')
+plt.title('Average IMDb Votes by Genre')
 plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.xlim([0, max(avgvotes) + 0.5])
-plt.savefig('PNG/Average IMDB Votes by Genre', bbox_inches='tight')
+plt.savefig('PNG/Average IMDb Votes by Genre', bbox_inches='tight')
 plt.show()  # Display the plot
 
 # top 10 director-------------------------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ plt.figure(figsize=(10, 6))
 bars = top10director.plot(kind='barh', color=colors)
 
 # Set the title and axis labels for the plot
-plt.title('Top 10 Directors by Average TMDB Score')
+plt.title('Top 10 Directors by Average TMDb Score')
 plt.xlabel('Average IMDB Score')
 plt.ylabel('Director')
 
@@ -316,7 +316,7 @@ plt.gca().invert_yaxis()
 
 # Adjust the layout for the plot
 plt.tight_layout()
-plt.savefig('PNG/Top 10 Directors by Average TMDB Score', bbox_inches='tight')
+plt.savefig('PNG/Top 10 Directors by Average TMDb Score', bbox_inches='tight')
 # Display the plot
 plt.show()
 
