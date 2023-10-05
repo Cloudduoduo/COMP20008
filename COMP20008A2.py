@@ -127,7 +127,7 @@ genre_counts_adjusted.plot.pie(
 plt.axis('equal')  # Ensure the pie chart is circular
 plt.ylabel('')  # Remove the y-axis label
 plt.title('Genre Distribution')  # Set the title for the pie chart
-
+plt.savefig('Genre Distribution.png', bbox_inches='tight')
 # Display the pie chart
 plt.show()
 
@@ -147,7 +147,7 @@ plt.title('Genre Distribution Over Time')
 plt.xlabel('Decade')  # Set x-axis label
 plt.ylabel('Number of Movies')  # Set y-axis label
 plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # Place the legend outside the plot
-
+plt.savefig('genre_distribution_over_time.png', bbox_inches='tight')
 # Display the line chart
 plt.show()
 
@@ -184,6 +184,7 @@ plt.figure(figsize=(10, 5))
 plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
 plt.xlabel('Count')
 plt.title(f'Top {top_n} Common Words in Movie Descriptions')
+plt.savefig('Common Words in Movie Descriptions.png', bbox_inches='tight')
 plt.show()
 
 # Generate a word cloud based on the word frequencies
