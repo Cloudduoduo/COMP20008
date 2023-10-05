@@ -92,15 +92,14 @@ print(f'Mean Squared Error: {mse1}')
 # has changed with the change of times
 
 
-
-# 使用已定义的预处理器和模型
+# preprocessor and model
 pipeline = Pipeline(steps=[('preprocessor', preprocessor),
                            ('regressor', LinearRegression())])
 
-# 进行5-折交叉验证
-scores = cross_val_score(pipeline, X, Y, cv=5, scoring='neg_mean_squared_error')
+# Performing cross-validation
+scores = cross_val_score(pipeline, X, Y, cv=10, scoring='neg_mean_squared_error')
 
-# 交叉验证返回的是负的MSE值，因为评分函数默认是越大越好。所以我们取负号来获得实际的MSE。
+# Cross-validation returns negative MSE values because the scoring function
 mse_scores = -scores
 mse2 = np.mean(mse_scores)
 print(f'Mean Squared Error: {mse2}')
