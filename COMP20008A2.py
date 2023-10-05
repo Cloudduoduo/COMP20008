@@ -15,6 +15,9 @@ import nltk
 import string
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
+from sklearn.model_selection import cross_val_score
+
+# pre-processing--------------------------------------------------------------------------------------------------------
 
 # Load the datasets
 credit = pd.read_csv('credits.csv', encoding='ISO-8859-1')
@@ -34,11 +37,12 @@ titles.to_csv('titles.csv', index=False)
 credit.drop_duplicates(inplace=True)
 titles.drop_duplicates(inplace=True)
 
-# Uncomment below lines to print the information of each dataframe if needed
+
+# Check dataframe
 # print(credit.info())
 # print(titles.info())
 
-# regression------------------------------------------------------------------------------------------------------------
+# Machine learning------------------------------------------------------------------------------------------------------
 
 
 # Define the features and the target variable for our model
@@ -59,8 +63,8 @@ numeric_transformer = SimpleImputer(strategy='median')  # Impute missing values 
 # Define categorical features and the corresponding transformer
 categorical_features = ['genres', 'production_countries']
 categorical_transformer = Pipeline(steps=[
-    ('impute', SimpleImputer(strategy='constant', fill_value='missing')),  # Impute missing values with 'missing' label
-    ('onehot', OneHotEncoder(handle_unknown='ignore'))  # Apply one-hot encoding to categorical features
+    ('impute', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
 ])
 
 # Create a column transformer that applies the above transformations to the respective columns
@@ -81,11 +85,25 @@ model.fit(X_train, Y_train)
 predictions = model.predict(X_test)
 
 # Calculate and print the mean squared error of the predictions
-mse = mean_squared_error(Y_test, predictions)
-print(f'Mean Squared Error: {mse}')
+mse1 = mean_squared_error(Y_test, predictions)
+print(f'Mean Squared Error: {mse1}')
 
 # By examining MSE, this model is not ideal, which may be because people's taste for movies
 # has changed with the change of times
+
+
+
+# 使用已定义的预处理器和模型
+pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                           ('regressor', LinearRegression())])
+
+# 进行5-折交叉验证
+scores = cross_val_score(pipeline, X, Y, cv=5, scoring='neg_mean_squared_error')
+
+# 交叉验证返回的是负的MSE值，因为评分函数默认是越大越好。所以我们取负号来获得实际的MSE。
+mse_scores = -scores
+mse2 = np.mean(mse_scores)
+print(f'Mean Squared Error: {mse2}')
 
 
 # pie chart and line chart about genre and years------------------------------------------------------------------------
@@ -103,14 +121,14 @@ genre_counts = p_exploded.value_counts()
 total = genre_counts.sum()
 
 # Set a threshold for minimum count required for a genre to be displayed separately in the pie chart
-threshold = 0.02 * total
+minimum = 0.02 * total
 
 # Group genres with counts below the threshold into an "Other" category
-genre_counts_adjusted = genre_counts[genre_counts >= threshold]
-other_count = genre_counts[genre_counts < threshold].sum()
+genre_counts_adjusted = genre_counts[genre_counts >= minimum]
+others = genre_counts[genre_counts < minimum].sum()
 
-if other_count > 0:
-    genre_counts_adjusted['Other'] = other_count
+if others > 0:
+    genre_counts_adjusted['Other'] = others
 
 # Define custom colors for the pie chart
 colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#99e6e6', '#ffdb4d']
@@ -144,11 +162,11 @@ genre_counts_over_time = df_exploded.groupby(['year_group', 'genres']).size().un
 plt.figure(figsize=(10, 6))
 genre_counts_over_time.plot(kind='line', ax=plt.gca())
 plt.title('Genre Distribution Over Time')
-plt.xlabel('Decade')  # Set x-axis label
-plt.ylabel('Number of Movies')  # Set y-axis label
-plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))  # Place the legend outside the plot
+plt.xlabel('Decade')
+plt.ylabel('Number of Movies')
+plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
 plt.savefig('PNG/Genre Distribution Over Time.png', bbox_inches='tight')
-# Display the line chart
+
 plt.show()
 
 # Word frequency plot and word cloud plot-------------------------------------------------------------------------------
@@ -176,16 +194,25 @@ for desc in titles['description']:
     word_count.update(word for word in words if word not in stop_words)
 
 # Get the most common words
-top_n = 20
-common_words = word_count.most_common(top_n)
+wordcount = 20
+topwords = word_count.most_common(wordcount)
+
+# Reverse the list of common words to display in descending order
+topwords.reverse()
 
 # Plot the most common words as a horizontal bar chart
 plt.figure(figsize=(10, 5))
-plt.barh([word[0] for word in common_words], [word[1] for word in common_words], color='skyblue')
+plt.barh([word[0] for word in topwords], [word[1] for word in topwords], color='skyblue')
 plt.xlabel('Count')
-plt.title(f'Top {top_n} Common Words in Movie Descriptions')
+plt.title(f'Top {wordcount} Common Words in Movie Descriptions')
+
+# Annotate the bars with the word count
+for i, count in enumerate([word[1] for word in topwords]):
+    plt.text(count + 10, i, str(count), va='center', fontsize=10, color='black')
+
 plt.savefig('PNG/Common Words in Movie Descriptions.png', bbox_inches='tight')
 plt.show()
+
 
 # Generate a word cloud based on the word frequencies
 wordcloud = WordCloud(width=800, height=400, background_color='white',
