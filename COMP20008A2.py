@@ -196,7 +196,7 @@ topwords.reverse()
 plt.figure(figsize=(10, 5))
 plt.barh([word[0] for word in topwords], [word[1] for word in topwords], color='skyblue')
 plt.xlabel('Count')
-plt.title(f'Top {wordcount} Common Words in Movie Descriptions')
+plt.title(f'Top {wordcount} Most Common Words in Movie Descriptions')
 
 # Annotate the bars with the word count
 for i, count in enumerate([word[1] for word in topwords]):
