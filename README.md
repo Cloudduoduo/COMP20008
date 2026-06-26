@@ -1,16 +1,31 @@
-# This the Assignment 2 for COMP20008 Elements of Data Processing
+# COMP20008 Assignment 2: Film Data Analysis
 
+This repository contains a data processing and exploratory analysis project for COMP20008 Elements of Data Processing.
 
-Presentation Videos: 
+## Project Overview
 
-URL link 
+The project analyzes film-related datasets, including movie metadata and credit information. It explores patterns in movie descriptions, IMDb ratings, votes, genres, directors, actors, film length, and age distribution.
 
-Our members are ：
+## Main Analyses
 
-XunHeng Li ID:1405559 Email:XUHENGL@student.unimelb.edu.au
+- Word frequency analysis on film descriptions
+- Average IMDb votes by content type
+- Top directors and actors
+- Age distribution analysis
+- IMDb score distribution
+- Film length distribution
+- Average IMDb score by genre
+- Regression modeling with cross-validation and mean squared error evaluation
 
-Weiyan Cheng ID:1403719 Email:weiycheng@student.unimelb.edu.au
+## Data
 
-Elaine Wong ID:1386226 Email:elaineyenyan@student.unimelb.edu.au
+The project uses CSV datasets provided for the assignment, including:
 
-For this project, our data sources are two CSV files provided by the teacher, one named credits and the other named titles. The project includes a series of analyses and visualizations of data related to the film, providing insight into various aspects such as the common words in the description, the average IMDB votes of different types, the top directors and actors, and the length distribution of the film. The following is the project's detailed introduction and core analysis: 1. Word frequency analysis 2. Average IMDB votes by type 3. Top 10 Directors 4. Top 10 Actors 5. Age Distribution 6.IMDb score distribution 7. Film length distribution 8. Average IMDb score by genre. And we use machine learning regression and cross-validation of the model's mean square error (MSE).
+- `credits.csv`
+- `titles.csv`
+
+Derived intermediate files are also included for analysis workflows.
+
+## Notes
+
+This repository is kept as a coursework and data analysis portfolio project. Personal student identifiers and contact details have been removed from the public README.
